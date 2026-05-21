@@ -1,0 +1,86 @@
+# PrepAI - AI-Powered Interview Preparation Platform
+
+## 1. Project Overview
+PrepAI is a high-end, engineer-focused interview preparation platform. It provides a minimalist, high-contrast UI (Vercel/Linear style) and features real-time voice-based technical screening with behavioral emotion analysis.
+
+**Design Philosophy:** Brutally minimal, studio-like focused environment, and data-dense dashboards for technical performance tracking.
+
+---
+
+## 2. Tech Stack
+- **Frontend:** Next.js 15 (App Router), React 19, Tailwind CSS 4, Framer Motion, Lucide React.
+- **Backend (Next.js):** API Routes (Node.js/TypeScript).
+- **Backend (External):** Python FastAPI (Emotion analysis via DeepFace/OpenCV).
+- **AI Services:** 
+    - **Vapi AI:** Voice-based real-time interview bot.
+    - **OpenAI (GPT-4o-mini):** Transcript evaluation and feedback.
+    - **Google Gemini:** Optional NLP tasks.
+- **Database & Auth:** Firebase (Auth, Firestore).
+- **Storage:** Local secure storage (`/private_uploads`) for recorded media.
+- **Visualization:** Recharts for behavioral analytics.
+
+---
+
+## 3. Core Workflows & Data Flow
+
+### A. Resume Parsing & Profiling
+1.  **Upload:** User uploads a PDF resume in `resume-scanner/page.tsx`.
+2.  **Parsing:** `app/api/parse-resume/route.ts` extracts text using `pdf-parse`.
+3.  **Usage:** Extracted text is used to customize interview questions (Logic in `VapiInterviewBot.tsx`).
+
+### B. AI Interview Pipeline
+1.  **Voice Interaction:** `VapiInterviewBot.tsx` initializes Vapi SDK for real-time voice communication.
+2.  **Media Recording:** During the interview, Next.js `MediaRecorder` captures video/audio chunks.
+3.  **Local Storage:** Chunks are sent to `app/api/upload-video/route.ts` and saved in `private_uploads/`.
+4.  **Retrieval:** `app/api/video/route.ts` serves local files for playback.
+
+### C. Emotion & Behavioral Analysis
+1.  **Analysis Request:** Frontend sends the local video path/file to the Python service.
+2.  **FastAPI Processing:** `prepai-python-service/main.py` uses `DeepFace` to analyze 1 frame per second.
+3.  **Metrics:** Tallies emotions (Happy, Neutral, Angry, etc.) and returns a behavioral profile.
+
+### D. Performance Evaluation
+1.  **Transcript Retrieval:** Transcript fetched from Vapi via `app/api/get-transcript/route.ts`.
+2.  **LLM Evaluation:** `app/api/evaluate-transcript/route.ts` sends the transcript to OpenAI (GPT-4o-mini).
+3.  **Report Storage:** Evaluation (Strengths, Weaknesses, Score) is saved to Firestore.
+
+---
+
+## 4. Key File Structure
+```text
+/
+├── app/
+│   ├── (auth)/             # Login, Sign-up
+│   ├── api/                # Backend routes (parsing, upload, evaluation)
+│   ├── dashboard/          # Performance tracking & reports
+│   ├── interview/          # Main interview room UI
+│   ├── resume-scanner/     # PDF resume processing
+│   ├── services/           # Firestore & Firebase logic
+│   └── layout.tsx          # Global layout (Navbar, Providers)
+├── components/
+│   ├── ui/                 # Reusable Radix/Shadcn-like components
+│   ├── VapiInterviewBot.tsx # Core interview logic
+│   └── Navbar.tsx          # Minimalist navigation
+├── prepai-python-service/  # Python FastAPI for CV/Emotion AI
+├── private_uploads/        # Local media storage (Gitignored)
+├── lib/                    # Shared utilities (Firebase Admin)
+└── package.json            # Node dependencies
+```
+
+---
+
+## 5. Environment Variables
+Ensure the following are configured in `.env.local`:
+- `NEXT_PUBLIC_FIREBASE_CONFIG`: Firebase client settings.
+- `FIREBASE_ADMIN_KEY`: JSON for Firebase Admin SDK.
+- `OPENAI_API_KEY`: For transcript evaluation.
+- `NEXT_PUBLIC_VAPI_PUBLIC_KEY`: For interview bot client.
+- `VAPI_API_KEY`: For server-side transcript retrieval.
+
+---
+
+## 6. Development
+1.  **Frontend:** `npm run dev` (Runs on port 3000)
+2.  **Python Service:** `npm run backend` (Runs on port 8000)
+    - Requires Python 3.x, `deepface`, `opencv-python`, `fastapi`.
+3.  **Build:** `npm run build`
