@@ -6,13 +6,13 @@ import { useRouter, usePathname } from 'next/navigation';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { app, db } from '@/app/firebase/firebaseConfig';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  User as UserIcon, 
-  Settings, 
-  LogOut, 
-  ChevronDown, 
-  LayoutDashboard, 
-  Home, 
+import {
+  User as UserIcon,
+  Settings,
+  LogOut,
+  ChevronDown,
+  LayoutDashboard,
+  Home,
   UserCircle,
   Sun,
   Moon
@@ -22,8 +22,24 @@ import { useTheme } from "next-themes";
 
 const dropdownVariants = {
   initial: { opacity: 0, y: 8, scale: 0.96 },
-  animate: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.15, ease: [0, 0, 0.2, 1] } },
-  exit: { opacity: 0, y: 8, scale: 0.96, transition: { duration: 0.1, ease: [0.4, 0, 1, 1] } },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.15,
+      ease: [0, 0, 0.2, 1] as const,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: 8,
+    scale: 0.96,
+    transition: {
+      duration: 0.1,
+      ease: [0.4, 0, 1, 1] as const,
+    },
+  },
 };
 
 const Navbar = () => {
@@ -113,9 +129,8 @@ const Navbar = () => {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-sm font-medium transition-colors ${
-                    pathname === link.href ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  className={`text-sm font-medium transition-colors ${pathname === link.href ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                    }`}
                 >
                   {link.name}
                 </Link>
@@ -158,16 +173,16 @@ const Navbar = () => {
                   >
                     {isAdmin ? (
                       <>
-                        <Link 
-                          href="/admin" 
+                        <Link
+                          href="/admin"
                           onClick={() => setIsDropdownOpen(false)}
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                         >
                           <Home size={16} />
                           Home
                         </Link>
-                        <Link 
-                          href="/admin/dashboard" 
+                        <Link
+                          href="/admin/dashboard"
                           onClick={() => setIsDropdownOpen(false)}
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                         >
@@ -177,24 +192,24 @@ const Navbar = () => {
                       </>
                     ) : (
                       <>
-                        <Link 
-                          href="/dashboard" 
+                        <Link
+                          href="/dashboard"
                           onClick={() => setIsDropdownOpen(false)}
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                         >
                           <LayoutDashboard size={16} />
                           Dashboard
                         </Link>
-                        <Link 
-                          href="/profile" 
+                        <Link
+                          href="/profile"
                           onClick={() => setIsDropdownOpen(false)}
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                         >
                           <UserCircle size={16} />
                           Profile
                         </Link>
-                        <Link 
-                          href="/settings" 
+                        <Link
+                          href="/settings"
                           onClick={() => setIsDropdownOpen(false)}
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                         >

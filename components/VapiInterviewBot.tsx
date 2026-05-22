@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Vapi from "@vapi-ai/web";
-import { auth, db } from "@/app/firebase/firebaseConfig"; 
-import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore"; 
-import { 
-  FiPhoneCall, FiPhoneOff, FiMic, FiMicOff, 
-  FiCheckCircle, FiAlertCircle, FiInfo, FiCamera, 
-  FiVolumeX, FiVolume2 
+import { auth, db } from "@/app/firebase/firebaseConfig";
+import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  FiPhoneCall, FiPhoneOff, FiMic, FiMicOff,
+  FiCheckCircle, FiAlertCircle, FiInfo, FiCamera,
+  FiVolumeX, FiVolume2
 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 
@@ -109,63 +109,63 @@ export default function VapiInterviewBot({ interviewType, interviewPrompt }: Vap
   const handleVideoProcessing = async (videoBlob: Blob) => {
     const user = auth.currentUser;
     if (!user) return;
-    
+
     const userId = user.uid;
     const nextFormData = new FormData();
     nextFormData.append('file', videoBlob, 'practice-interview.webm');
     nextFormData.append('userId', userId);
 
     try {
-        setStatusMessage("Processing session...");
-        const nextResponse = await fetch('/api/upload', {
+      setStatusMessage("Processing session...");
+      const nextResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: nextFormData
+      });
+
+      if (!nextResponse.ok) throw new Error("Video upload failed");
+
+      const nextData = await nextResponse.json();
+
+      if (nextData.success) {
+        const secureFileName = nextData.filename;
+
+        const pythonFormData = new FormData();
+        pythonFormData.append('file', videoBlob, 'interview.webm');
+
+        try {
+          const pythonResponse = await fetch('http://localhost:8000/analyze', {
             method: 'POST',
-            body: nextFormData
-        });
-        
-        if (!nextResponse.ok) throw new Error("Video upload failed");
-        
-        const nextData = await nextResponse.json();
+            body: pythonFormData
+          });
 
-        if (nextData.success) {
-            const secureFileName = nextData.filename;
-            
-            const pythonFormData = new FormData();
-            pythonFormData.append('file', videoBlob, 'interview.webm');
+          const aiResult = await pythonResponse.json();
 
-            try {
-                const pythonResponse = await fetch('http://localhost:8000/analyze', {
-                    method: 'POST',
-                    body: pythonFormData
-                });
-                
-                const aiResult = await pythonResponse.json();
-                
-                await addDoc(collection(db, 'users', userId, 'behavioral_reports'), {
-                    userId: userId,
-                    jobId: `practice-${interviewType || "unknown"}`,
-                    videoFileName: secureFileName,
-                    sentimentData: aiResult,
-                    createdAt: serverTimestamp()
-                });
+          await addDoc(collection(db, 'users', userId, 'behavioral_reports'), {
+            userId: userId,
+            jobId: `practice-${interviewType || "unknown"}`,
+            videoFileName: secureFileName,
+            sentimentData: aiResult,
+            createdAt: serverTimestamp()
+          });
 
-                setStatusMessage("Session saved! View your report below.");
-                setProcessingComplete(true); 
-            } catch (pyError: any) {
-                console.error("Analysis Failed:", pyError);
-                // Save partial report anyway
-                await addDoc(collection(db, 'users', userId, 'behavioral_reports'), {
-                    userId: userId,
-                    jobId: `practice-${interviewType || "unknown"}`,
-                    videoFileName: secureFileName,
-                    sentimentData: { error: "Analysis failed", details: pyError.message },
-                    createdAt: serverTimestamp()
-                });
-                setProcessingComplete(true);
-            }
+          setStatusMessage("Session saved! View your report below.");
+          setProcessingComplete(true);
+        } catch (pyError: any) {
+          console.error("Analysis Failed:", pyError);
+          // Save partial report anyway
+          await addDoc(collection(db, 'users', userId, 'behavioral_reports'), {
+            userId: userId,
+            jobId: `practice-${interviewType || "unknown"}`,
+            videoFileName: secureFileName,
+            sentimentData: { error: "Analysis failed", details: pyError.message },
+            createdAt: serverTimestamp()
+          });
+          setProcessingComplete(true);
         }
+      }
     } catch (error: any) {
-        console.error("Video Processing Error:", error);
-        setErrorMessage("Failed to process session.");
+      console.error("Video Processing Error:", error);
+      setErrorMessage("Failed to process session.");
     }
   };
 
@@ -223,14 +223,19 @@ export default function VapiInterviewBot({ interviewType, interviewPrompt }: Vap
       const assistantOverrides = {
         firstMessage: `Welcome to your ${interviewType || "Mock"} interview! Let's get started. Please introduce yourself.`,
         model: {
-          provider: "openai",
-          model: "gpt-4o",
-          messages: [{ role: "system", content: dynamicPrompt }]
-        }
+          provider: "openai" as const,
+          model: "gpt-4o" as const,
+          messages: [
+            {
+              role: "system" as const,
+              content: dynamicPrompt,
+            },
+          ],
+        },
       };
 
       await vapiRef.current.start("18c8a0a3-bc06-408a-b176-dca79d3c16af", assistantOverrides);
-      
+
     } catch (error: any) {
       setIsLoading(false);
       setErrorMessage(`Failed: ${error.message}`);
@@ -254,7 +259,7 @@ export default function VapiInterviewBot({ interviewType, interviewPrompt }: Vap
 
   return (
     <div className="flex flex-col md:flex-row items-center justify-center w-full min-h-[70vh] p-6 space-y-6 md:space-y-0 md:space-x-8 bg-[#05050A] rounded-2xl border border-gray-800 shadow-2xl">
-      
+
       <div className="flex flex-col items-center justify-center p-6 w-full max-w-sm rounded-2xl bg-gray-900 border border-gray-800">
         <h2 className="text-2xl font-bold text-white mb-2">{interviewType || "Practice"}</h2>
         <p className="text-gray-400 text-sm mb-8 text-center">AI-Powered Practice Session</p>
@@ -262,20 +267,20 @@ export default function VapiInterviewBot({ interviewType, interviewPrompt }: Vap
         <div className={`w-48 h-48 rounded-full overflow-hidden border-4 border-[#4A3AFF] shadow-[0_0_30px_rgba(74,58,255,0.2)] flex items-center justify-center mb-8 transform transition-all duration-500
           ${isBotSpeaking ? 'ring-4 ring-purple-500 ring-opacity-75 scale-105 shadow-[0_0_50px_rgba(178,85,255,0.6)]' : 'hover:scale-[1.01]'}`}>
           <div className="w-full h-full bg-gradient-to-br from-blue-900 to-black flex items-center justify-center">
-             <span className="text-4xl">🤖</span>
+            <span className="text-4xl">🤖</span>
           </div>
         </div>
 
         <div className={`text-sm font-medium px-4 py-2 rounded-full border flex items-center justify-center text-center
           ${errorMessage ? 'text-red-400 bg-red-900/30 border-red-800' :
             isCallActive ? (isMuted ? 'text-orange-400 bg-orange-900/30 border-orange-800' : (isBotSpeaking ? 'text-purple-400 bg-purple-900/30 border-purple-800' : 'text-green-400 bg-green-900/30 border-green-800')) :
-            'text-blue-400 bg-blue-900/30 border-blue-800'
+              'text-blue-400 bg-blue-900/30 border-blue-800'
           }`}>
           {errorMessage ? <FiAlertCircle className="w-4 h-4 mr-2" /> :
-           isMuted && isCallActive ? <FiVolumeX className="w-4 h-4 mr-2" /> :
-           isBotSpeaking && isCallActive ? <FiVolume2 className="w-4 h-4 mr-2" /> :
-           isCallActive ? <FiCheckCircle className="w-4 h-4 mr-2" /> :
-           <FiInfo className="w-4 h-4 mr-2" />}
+            isMuted && isCallActive ? <FiVolumeX className="w-4 h-4 mr-2" /> :
+              isBotSpeaking && isCallActive ? <FiVolume2 className="w-4 h-4 mr-2" /> :
+                isCallActive ? <FiCheckCircle className="w-4 h-4 mr-2" /> :
+                  <FiInfo className="w-4 h-4 mr-2" />}
           {statusMessage}
         </div>
       </div>
@@ -317,7 +322,7 @@ export default function VapiInterviewBot({ interviewType, interviewPrompt }: Vap
               >
                 {isMuted ? <FiMicOff /> : <FiMic />}
               </button>
-              
+
               <button
                 onClick={handleStopCall}
                 className="flex items-center justify-center w-16 h-16 rounded-full bg-red-500 hover:bg-red-400 text-white text-2xl transition-all shadow-lg"
