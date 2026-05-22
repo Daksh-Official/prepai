@@ -43,7 +43,7 @@ PrepAI is an AI-powered interview preparation platform designed to help students
 
 ## 🚀 Live Demo
 
-🔗 **Live Website:** [Add Your Live Demo Link Here](https://your-live-demo-link.com)
+🔗 **Live Website:** [https://prepai-iota.vercel.app/](https://prepai-iota.vercel.app/)
 
 ---
 
@@ -68,7 +68,7 @@ PrepAI is an AI-powered interview preparation platform designed to help students
 Clone the repository:
 
 ```bash
-git clone https://github.com/your-github-username/prepai.git
+git clone https://github.com/Daksh-Official/prepai.git
 ```
 
 Move into the project directory:
@@ -94,6 +94,7 @@ npm run dev
 ## 🤝 Contributors
 
 ### 👨‍💻 Daksh Gupta
+- portfolio: [https://www.dakshgupta.in/](https://www.dakshgupta.in/)
 - LinkedIn: [https://www.linkedin.com/in/daksh-gupta-6a4816262/](https://www.linkedin.com/in/daksh-gupta-6a4816262/)
 
 ### 👨‍💻 Kartik
