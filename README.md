@@ -98,6 +98,7 @@ npm run dev
 - LinkedIn: [https://www.linkedin.com/in/daksh-gupta-6a4816262/](https://www.linkedin.com/in/daksh-gupta-6a4816262/)
 
 ### 👨‍💻 Kartik
+- Portfolio: [https://kartikkumar-dev.vercel.app/](https://kartikkumar-dev.vercel.app/)
 - GitHub: [https://github.com/kartikkumar925800](https://github.com/kartikkumar925800)
 - LinkedIn: [https://www.linkedin.com/in/kartikkumar925800/](https://www.linkedin.com/in/kartikkumar925800/)
 
